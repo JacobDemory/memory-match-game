@@ -73,7 +73,3 @@ memory-match-game/
 - Add combo bonuses for consecutive matches
 - Add a theme preview panel
 - Convert to React for stronger component-based state management
-
----
-
-Built with ❤️ by Jacob
