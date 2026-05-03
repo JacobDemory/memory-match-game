@@ -1,21 +1,20 @@
 # Memory Match Game
 
-A browser-based memory matching game built with HTML, CSS, and JavaScript. Flip cards, find matching pairs, track your moves, and try to clear the board as efficiently as possible!
-
-This project was built to practice JavaScript game logic, DOM manipulation, responsive styling, and interactive frontend behavior.
+A browser-based card matching game built with HTML, CSS, and JavaScript. Flip cards, find matching pairs, choose a difficulty, and try to earn the highest score on the local leaderboard!
 
 ---
 
 ## Features
 Recent additions are in **bold**
 - Interactive card flipping and matching logic
-- Randomized board each time the game starts
-- **Move counter to track player efficiency**
-- **Timer that starts on the first card flip**
-- **Match counter to show game progress**
-- **Win message showing final moves and time**
-- **Restart button for replaying instantly**
-- **Responsive layout for desktop and mobile**
+- Tracks matched pairs and game progress
+- **Difficulty system with Easy, Medium, and Hard board sizes**
+- **Move counter, timer, and live score preview**
+- **Scoring formula based on difficulty, moves, and completion time**
+- **Local leaderboard saved in the browser with localStorage**
+- **Win modal showing final time, moves, difficulty, and score**
+- Restart and new game controls
+- Responsive layout for desktop and mobile
 - Clean visual styling with card flip animations
 - Hosted live with GitHub Pages
 
@@ -25,6 +24,7 @@ Recent additions are in **bold**
 - HTML
 - CSS
 - JavaScript
+- LocalStorage
 - GitHub Pages
 
 ---
@@ -32,23 +32,20 @@ Recent additions are in **bold**
 ## Live Demo
 Play the game here:
 
-[Memory Match Game](https://jacobdemory.github.io/memory-match-game/)
+https://jacobdemory.github.io/memory-match-game/
 
 ---
 
 ## How to Run
-1. **Prerequisites**: No installation is required. You only need a modern web browser.
-2. **Download**: Clone or download this repository to your local machine.
-3. **Open the Game**: Open `index.html` in your browser.
-
-You can also clone the repository with:
-
-```bash
-git clone https://github.com/JacobDemory/memory-match-game.git
-cd memory-match-game
-```
-
-Then open `index.html` directly, or use a local development server.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/JacobDemory/memory-match-game.git
+   ```
+2. Navigate to the directory:
+   ```bash
+   cd memory-match-game
+   ```
+3. Open `index.html` in your browser.
 
 ---
 
@@ -58,15 +55,20 @@ memory-match-game/
 ├── index.html
 ├── script.js
 ├── styles.css
+├── .gitignore
 └── README.md
 ```
 
 ---
 
 ## Future Improvements
-- Add difficulty levels with different board sizes
-- Add best score tracking with local storage
 - Add custom card themes
-- Add sound effects
+- Add sound effects for flips, matches, and wins
+- Add best score tracking by difficulty
+- Add keyboard navigation improvements
 - Add animations for completed matches
-- Add a leaderboard or scoring system
+- Convert to React for stronger component-based state management
+
+---
+
+Built with ❤️ by Jacob
