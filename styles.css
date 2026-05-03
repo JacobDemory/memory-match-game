@@ -80,7 +80,7 @@ h1 {
 
 .setup-panel {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr auto;
   gap: 14px;
   align-items: end;
   margin-bottom: 18px;
@@ -115,7 +115,7 @@ h1 {
 
 .stats-panel {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin-bottom: 18px;
   padding: 12px;
@@ -200,6 +200,10 @@ h1 {
   transform: rotateY(360deg);
 }
 
+.card.peeked .card-back {
+  box-shadow: 0 0 24px rgba(147, 197, 253, 0.55);
+}
+
 .card.matched .card-back {
   background: #86efac;
   box-shadow: 0 0 24px rgba(134, 239, 172, 0.45);
@@ -270,8 +274,31 @@ h1 {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  align-items: baseline;
+  align-items: center;
   margin-bottom: 12px;
+}
+
+.leaderboard-filter {
+  display: grid;
+  gap: 6px;
+  min-width: 120px;
+}
+
+.leaderboard-filter span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.leaderboard-filter select {
+  min-height: 40px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  padding: 0 10px;
 }
 
 .leaderboard-header h2 {
@@ -295,7 +322,7 @@ h1 {
 .leaderboard-entry,
 .empty-leaderboard {
   display: grid;
-  grid-template-columns: 56px 1fr 90px 70px 70px;
+  grid-template-columns: 56px 1fr 90px 90px 70px 90px 70px;
   gap: 8px;
   align-items: center;
   padding: 12px;
@@ -358,7 +385,7 @@ h1 {
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 860px) {
   .setup-panel,
   .stats-panel {
     grid-template-columns: 1fr 1fr;
@@ -374,6 +401,10 @@ h1 {
 
   .leaderboard-header {
     display: block;
+  }
+
+  .leaderboard-filter {
+    margin-top: 12px;
   }
 
   .leaderboard-entry {

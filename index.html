@@ -29,6 +29,16 @@
         </select>
       </label>
 
+      <label class="setup-field" for="theme-select">
+        <span>Theme</span>
+        <select id="theme-select">
+          <option value="mixed">Mixed</option>
+          <option value="animals">Animals</option>
+          <option value="space">Space</option>
+          <option value="sports">Sports</option>
+        </select>
+      </label>
+
       <button id="new-game-btn" class="primary-btn" type="button">New Game</button>
     </section>
 
@@ -49,6 +59,10 @@
         <span class="stat-label">Score</span>
         <span id="score-preview" class="stat-value">0</span>
       </div>
+      <div class="stat-card">
+        <span class="stat-label">Best</span>
+        <span id="best-score" class="stat-value">—</span>
+      </div>
     </section>
 
     <section id="status-message" class="status-message" aria-live="polite">
@@ -59,13 +73,25 @@
 
     <section class="action-row">
       <button id="restart-btn" class="secondary-btn" type="button">Restart Game</button>
+      <button id="peek-btn" class="secondary-btn" type="button">Peek Cards (-100)</button>
       <button id="clear-leaderboard-btn" class="secondary-btn danger-btn" type="button">Clear Leaderboard</button>
     </section>
 
     <section class="leaderboard-card" aria-label="Local leaderboard">
       <div class="leaderboard-header">
-        <h2>Local Leaderboard</h2>
-        <p>Top scores are saved in your browser.</p>
+        <div>
+          <h2>Local Leaderboard</h2>
+          <p>Top scores are saved in your browser.</p>
+        </div>
+        <label class="leaderboard-filter" for="leaderboard-filter">
+          <span>Show</span>
+          <select id="leaderboard-filter">
+            <option value="all">All</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </label>
       </div>
       <ol id="leaderboard-list" class="leaderboard-list"></ol>
     </section>
