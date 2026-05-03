@@ -1,140 +1,177 @@
-/* 
-    Students! You will all be completing this matching card game.
-    Follow the directions throughout this file to slowly build out 
-    the game's features.
-*/
-
-
-// These are all the symbols that the game is going to use
 const symbols = ['🍎', '🍌', '🍇', '🍓', '🍍', '🍉', '🍒', '🥝'];
-// You're going to need this to display the cards on the screen (remember there should be two of each card)
+const totalPairs = symbols.length;
+
 let cards = [];
-// These will be used when the user starts choosing cards
-let firstCard = null, secondCard = null;
-// You will need to lock the board to stop users from choosing cards when they choose two wrong cards
-// (Don't have to worry about this too much)
+let firstCard = null;
+let secondCard = null;
 let lockBoard = false;
+let moves = 0;
+let matches = 0;
+let secondsElapsed = 0;
+let timerInterval = null;
+let timerStarted = false;
 
-/* 
-    You must initialize the game board. You have been given a shuffleArray() function.
-    This function should also reset the entire game board by making sure there's no HTML inside of the game-board div.
-    Use the createCard() function to initialize each cardElement and add it to the gameBoard.
+const gameBoard = document.getElementById('game-board');
+const moveCount = document.getElementById('move-count');
+const matchCount = document.getElementById('match-count');
+const timer = document.getElementById('timer');
+const statusMessage = document.getElementById('status-message');
+const restartButton = document.getElementById('restart-btn');
 
-*/
 function initGame() {
-    // Clear the game board
-    const gameBoard = document.getElementById('game-board');
-    gameBoard.innerHTML = '';
+  cards = shuffleArray([...symbols, ...symbols]);
+  firstCard = null;
+  secondCard = null;
+  lockBoard = false;
+  moves = 0;
+  matches = 0;
+  secondsElapsed = 0;
+  timerStarted = false;
 
-    // Duplicate and shuffle the symbols array
-    cards = [...symbols, ...symbols];
-    shuffleArray(cards);
+  stopTimer();
+  updateStats();
+  statusMessage.textContent = 'Click any card to start the timer.';
+  gameBoard.innerHTML = '';
 
-    // Create each card and add it to the game board
-    cards.forEach(symbol => {
-        const cardElement = createCard(symbol);
-        gameBoard.appendChild(cardElement);
-    });
-
-    // Reset the board and event listeners
-    resetBoard();
-
-    document.getElementById('restart-btn').addEventListener('click', initGame);
+  cards.forEach((symbol, index) => {
+    gameBoard.appendChild(createCard(symbol, index));
+  });
 }
 
-/*
-    The card will have the class 'card' and it would be a good idea to somehow save what its symbol is
-    within the element itself, since we'll need it for later and there's no easy way to get it from the arrays.
-    Also make sure to add the event listener with the 'flipCard' function
-*/
-function createCard(symbol) {
-    // Create a div element with the class 'card'
-    const card = document.createElement('div');
-    card.classList.add('card');
-    // Store the symbol as a data attribute
-    card.dataset.symbol = symbol;
-    // Add an event listener to flip the card on click
-    card.addEventListener('click', () => flipCard(card));
-    return card;
+function createCard(symbol, index) {
+  const card = document.createElement('button');
+
+  card.classList.add('card');
+  card.type = 'button';
+  card.dataset.symbol = symbol;
+  card.dataset.index = index;
+  card.setAttribute('aria-label', 'Hidden memory card');
+
+  const cardFront = document.createElement('span');
+  cardFront.classList.add('card-face', 'card-front');
+  cardFront.textContent = '?';
+
+  const cardBack = document.createElement('span');
+  cardBack.classList.add('card-face', 'card-back');
+  cardBack.textContent = symbol;
+
+  card.appendChild(cardFront);
+  card.appendChild(cardBack);
+  card.addEventListener('click', () => flipCard(card));
+
+  return card;
 }
 
-/*
-    This function will handle all the logic for flipping the card. You can check if a variable doesn't
-    have a value attached to it or is null by doing if (variable === null) {} or if (variable == null) {} or  if (!variable){}
-    If a card get's flipped, add the 'flipped' class and also display the symbol. 
-    Also, if this is the first card you picked, then set the firstCard variable to the card you just picked.
-    If it's the second, then set the secondCard variable to it. Also, if that's the second card, then you 
-    want to check for a match using the checkForMatch() function. 
-*/
 function flipCard(card) {
-    // If the board is supposed to be locked or you picked the same card you already picked
-    if (lockBoard || card === firstCard) return;
-    
-    // Add 'flipped' class and display the symbol
-    card.classList.add('flipped');
-    card.textContent = card.dataset.symbol;
+  if (lockBoard || card === firstCard || card.classList.contains('matched')) {
+    return;
+  }
 
-    if (!firstCard) {
-        // If this is the first card
-        firstCard = card;
-    } else {
-        // If this is the second card
-        secondCard = card;
-        checkForMatch();
-    }
+  if (!timerStarted) {
+    startTimer();
+    timerStarted = true;
+  }
+
+  card.classList.add('flipped');
+  card.setAttribute('aria-label', `Revealed card: ${card.dataset.symbol}`);
+
+  if (!firstCard) {
+    firstCard = card;
+    return;
+  }
+
+  secondCard = card;
+  moves += 1;
+  updateStats();
+  checkForMatch();
 }
 
-/* 
-    If there's a match between the first two cards that you picked, you want to take those cards out of the
-    game and then reset the board so that there is firstCard == null and secondCard == null.
-    Otherwise, you should unflip the card and continue playing normally.
-*/
 function checkForMatch() {
-    const isMatch = firstCard.dataset.symbol === secondCard.dataset.symbol;
-    isMatch ? disableCards() : unflipCards();
+  const isMatch = firstCard.dataset.symbol === secondCard.dataset.symbol;
+
+  if (isMatch) {
+    handleMatch();
+  } else {
+    unflipCards();
+  }
 }
 
-/* 
-    Disable both of the cards by adding the "matched" class to them. The "matched" class will add CSS
-    properties to make sure that they can no longer be clicked at all. Then use the resetBoard() function
-    to reset the firstCard, secondCard, and lockBoard variables. (That's been written for you already)
-*/
-function disableCards() {
-    // Add 'matched' class to both cards
-    firstCard.classList.add('matched');
-    secondCard.classList.add('matched');
-    // Reset the board
-    resetBoard();
+function handleMatch() {
+  firstCard.classList.add('matched');
+  secondCard.classList.add('matched');
+  firstCard.disabled = true;
+  secondCard.disabled = true;
+
+  matches += 1;
+  statusMessage.textContent = 'Match found!';
+  updateStats();
+  resetBoard();
+
+  if (matches === totalPairs) {
+    endGame();
+  }
 }
- 
-/* ---------------------  Everything under has already been done for you -------------------------- */
 
 function unflipCards() {
+  lockBoard = true;
+  statusMessage.textContent = 'Not a match. Try again!';
 
-    // We lock the board so that the user can't touch the board while it is unflipping
-    lockBoard = true;
-
-    // The cards will be flipped back after 1 second and the board will be reset
-    // The 1 second is to give the user time to actaully see the card so they can memorize them before they unflip
-    setTimeout(() => {
-        firstCard.classList.remove('flipped');
-        secondCard.classList.remove('flipped');
-        firstCard.textContent = '';
-        secondCard.textContent = '';
-        resetBoard();
-    }, 1000);
+  setTimeout(() => {
+    firstCard.classList.remove('flipped');
+    secondCard.classList.remove('flipped');
+    firstCard.setAttribute('aria-label', 'Hidden memory card');
+    secondCard.setAttribute('aria-label', 'Hidden memory card');
+    resetBoard();
+  }, 800);
 }
 
 function resetBoard() {
-    [firstCard, secondCard, lockBoard] = [null, null, false];
+  firstCard = null;
+  secondCard = null;
+  lockBoard = false;
 }
 
-// Function to shuffle an array
+function startTimer() {
+  timerInterval = setInterval(() => {
+    secondsElapsed += 1;
+    timer.textContent = formatTime(secondsElapsed);
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function updateStats() {
+  moveCount.textContent = moves;
+  matchCount.textContent = `${matches} / ${totalPairs}`;
+  timer.textContent = formatTime(secondsElapsed);
+}
+
+function endGame() {
+  stopTimer();
+  statusMessage.textContent = `You won in ${moves} moves and ${formatTime(secondsElapsed)}!`;
+}
+
+function formatTime(totalSeconds) {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
 function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
+  const shuffled = [...array];
+
+  for (let i = shuffled.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
 }
 
+restartButton.addEventListener('click', initGame);
 initGame();
