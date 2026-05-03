@@ -11,7 +11,25 @@
     <section class="hero">
       <p class="eyebrow">Browser Game</p>
       <h1>Memory Match Game</h1>
-      <p class="subtitle">Flip cards, find matching pairs, and try to clear the board in as few moves as possible.</p>
+      <p class="subtitle">Flip cards, find matching pairs, beat the clock, and climb the local leaderboard.</p>
+    </section>
+
+    <section class="setup-panel" aria-label="Game setup options">
+      <label class="setup-field" for="player-name">
+        <span>Player</span>
+        <input id="player-name" type="text" maxlength="16" placeholder="Jacob" />
+      </label>
+
+      <label class="setup-field" for="difficulty-select">
+        <span>Difficulty</span>
+        <select id="difficulty-select">
+          <option value="easy">Easy - 4x4</option>
+          <option value="medium">Medium - 6x6</option>
+          <option value="hard">Hard - 8x8</option>
+        </select>
+      </label>
+
+      <button id="new-game-btn" class="primary-btn" type="button">New Game</button>
     </section>
 
     <section class="stats-panel" aria-label="Game statistics">
@@ -27,16 +45,43 @@
         <span class="stat-label">Time</span>
         <span id="timer" class="stat-value">00:00</span>
       </div>
+      <div class="stat-card">
+        <span class="stat-label">Score</span>
+        <span id="score-preview" class="stat-value">0</span>
+      </div>
     </section>
 
     <section id="status-message" class="status-message" aria-live="polite">
-      Click any card to start the timer.
+      Choose a difficulty and click any card to start the timer.
     </section>
 
     <section id="game-board" class="game-board" aria-label="Memory match game board"></section>
 
-    <button id="restart-btn" class="restart-btn" type="button">Restart Game</button>
+    <section class="action-row">
+      <button id="restart-btn" class="secondary-btn" type="button">Restart Game</button>
+      <button id="clear-leaderboard-btn" class="secondary-btn danger-btn" type="button">Clear Leaderboard</button>
+    </section>
+
+    <section class="leaderboard-card" aria-label="Local leaderboard">
+      <div class="leaderboard-header">
+        <h2>Local Leaderboard</h2>
+        <p>Top scores are saved in your browser.</p>
+      </div>
+      <ol id="leaderboard-list" class="leaderboard-list"></ol>
+    </section>
   </main>
+
+  <div id="win-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="win-title">
+    <div class="modal-card">
+      <p class="modal-emoji">🎉</p>
+      <h2 id="win-title">You won!</h2>
+      <p id="win-summary" class="modal-summary"></p>
+      <div class="modal-actions">
+        <button id="play-again-btn" class="primary-btn" type="button">Play Again</button>
+        <button id="close-modal-btn" class="secondary-btn" type="button">Close</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>

@@ -1,6 +1,35 @@
-const symbols = ['🍎', '🍌', '🍇', '🍓', '🍍', '🍉', '🍒', '🥝'];
-const totalPairs = symbols.length;
+const allSymbols = [
+  '🍎', '🍌', '🍇', '🍓', '🍍', '🍉', '🍒', '🥝',
+  '🍋', '🍑', '🥥', '🥭', '🍐', '🍊', '🫐', '🍈',
+  '🐶', '🐱', '🐸', '🦊', '🐼', '🦁', '🐵', '🐯',
+  '⭐', '🌙', '☀️', '⚡', '🔥', '❄️', '🌈', '💎',
+];
 
+const difficultySettings = {
+  easy: {
+    label: 'Easy',
+    columns: 4,
+    pairs: 8,
+    multiplier: 1,
+  },
+  medium: {
+    label: 'Medium',
+    columns: 6,
+    pairs: 18,
+    multiplier: 2,
+  },
+  hard: {
+    label: 'Hard',
+    columns: 8,
+    pairs: 32,
+    multiplier: 4,
+  },
+};
+
+const leaderboardKey = 'memoryMatchLeaderboard';
+
+let currentDifficulty = 'easy';
+let currentSymbols = [];
 let cards = [];
 let firstCard = null;
 let secondCard = null;
@@ -15,11 +44,24 @@ const gameBoard = document.getElementById('game-board');
 const moveCount = document.getElementById('move-count');
 const matchCount = document.getElementById('match-count');
 const timer = document.getElementById('timer');
+const scorePreview = document.getElementById('score-preview');
 const statusMessage = document.getElementById('status-message');
 const restartButton = document.getElementById('restart-btn');
+const newGameButton = document.getElementById('new-game-btn');
+const clearLeaderboardButton = document.getElementById('clear-leaderboard-btn');
+const difficultySelect = document.getElementById('difficulty-select');
+const playerNameInput = document.getElementById('player-name');
+const leaderboardList = document.getElementById('leaderboard-list');
+const winModal = document.getElementById('win-modal');
+const winSummary = document.getElementById('win-summary');
+const playAgainButton = document.getElementById('play-again-btn');
+const closeModalButton = document.getElementById('close-modal-btn');
 
 function initGame() {
-  cards = shuffleArray([...symbols, ...symbols]);
+  const difficulty = difficultySettings[currentDifficulty];
+
+  currentSymbols = allSymbols.slice(0, difficulty.pairs);
+  cards = shuffleArray([...currentSymbols, ...currentSymbols]);
   firstCard = null;
   secondCard = null;
   lockBoard = false;
@@ -30,8 +72,10 @@ function initGame() {
 
   stopTimer();
   updateStats();
-  statusMessage.textContent = 'Click any card to start the timer.';
+  closeWinModal();
+  statusMessage.textContent = `${difficulty.label} mode loaded. Click any card to start the timer.`;
   gameBoard.innerHTML = '';
+  gameBoard.style.setProperty('--columns', difficulty.columns);
 
   cards.forEach((symbol, index) => {
     gameBoard.appendChild(createCard(symbol, index));
@@ -107,7 +151,7 @@ function handleMatch() {
   updateStats();
   resetBoard();
 
-  if (matches === totalPairs) {
+  if (matches === currentSymbols.length) {
     endGame();
   }
 }
@@ -115,14 +159,16 @@ function handleMatch() {
 function unflipCards() {
   lockBoard = true;
   statusMessage.textContent = 'Not a match. Try again!';
+  firstCard.classList.add('wrong');
+  secondCard.classList.add('wrong');
 
   setTimeout(() => {
-    firstCard.classList.remove('flipped');
-    secondCard.classList.remove('flipped');
+    firstCard.classList.remove('flipped', 'wrong');
+    secondCard.classList.remove('flipped', 'wrong');
     firstCard.setAttribute('aria-label', 'Hidden memory card');
     secondCard.setAttribute('aria-label', 'Hidden memory card');
     resetBoard();
-  }, 800);
+  }, 850);
 }
 
 function resetBoard() {
@@ -134,7 +180,7 @@ function resetBoard() {
 function startTimer() {
   timerInterval = setInterval(() => {
     secondsElapsed += 1;
-    timer.textContent = formatTime(secondsElapsed);
+    updateStats();
   }, 1000);
 }
 
@@ -147,13 +193,118 @@ function stopTimer() {
 
 function updateStats() {
   moveCount.textContent = moves;
-  matchCount.textContent = `${matches} / ${totalPairs}`;
+  matchCount.textContent = `${matches} / ${currentSymbols.length || difficultySettings[currentDifficulty].pairs}`;
   timer.textContent = formatTime(secondsElapsed);
+  scorePreview.textContent = calculateScore();
+}
+
+function calculateScore() {
+  const difficulty = difficultySettings[currentDifficulty];
+  const baseScore = difficulty.pairs * 100 * difficulty.multiplier;
+  const movePenalty = moves * 8;
+  const timePenalty = secondsElapsed * 2;
+  return Math.max(0, baseScore - movePenalty - timePenalty);
 }
 
 function endGame() {
   stopTimer();
-  statusMessage.textContent = `You won in ${moves} moves and ${formatTime(secondsElapsed)}!`;
+
+  const finalScore = calculateScore();
+  const playerName = getPlayerName();
+  const difficulty = difficultySettings[currentDifficulty];
+
+  saveLeaderboardEntry({
+    name: playerName,
+    score: finalScore,
+    moves,
+    time: secondsElapsed,
+    difficulty: difficulty.label,
+    date: new Date().toISOString(),
+  });
+
+  renderLeaderboard();
+  statusMessage.textContent = `You won ${difficulty.label} mode with ${finalScore} points!`;
+  showWinModal(finalScore, difficulty.label);
+}
+
+function getPlayerName() {
+  const trimmedName = playerNameInput.value.trim();
+  return trimmedName || 'Player';
+}
+
+function showWinModal(finalScore, difficultyLabel) {
+  winSummary.textContent = `${getPlayerName()}, you cleared ${difficultyLabel} mode in ${moves} moves and ${formatTime(secondsElapsed)} for ${finalScore} points.`;
+  winModal.classList.remove('hidden');
+}
+
+function closeWinModal() {
+  winModal.classList.add('hidden');
+}
+
+function saveLeaderboardEntry(entry) {
+  const leaderboard = getLeaderboard();
+  leaderboard.push(entry);
+
+  leaderboard.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+
+    return a.time - b.time;
+  });
+
+  localStorage.setItem(leaderboardKey, JSON.stringify(leaderboard.slice(0, 10)));
+}
+
+function getLeaderboard() {
+  const storedLeaderboard = localStorage.getItem(leaderboardKey);
+
+  if (!storedLeaderboard) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(storedLeaderboard);
+  } catch (error) {
+    localStorage.removeItem(leaderboardKey);
+    return [];
+  }
+}
+
+function renderLeaderboard() {
+  const leaderboard = getLeaderboard();
+
+  leaderboardList.innerHTML = '';
+
+  if (leaderboard.length === 0) {
+    const emptyItem = document.createElement('li');
+    emptyItem.classList.add('empty-leaderboard');
+    emptyItem.textContent = 'No scores yet. Finish a game to add one!';
+    leaderboardList.appendChild(emptyItem);
+    return;
+  }
+
+  leaderboard.forEach((entry, index) => {
+    const listItem = document.createElement('li');
+    listItem.classList.add('leaderboard-entry');
+    listItem.innerHTML = `
+      <span class="rank">#${index + 1}</span>
+      <span class="leaderboard-name">${escapeHtml(entry.name)}</span>
+      <span>${entry.difficulty}</span>
+      <span>${formatTime(entry.time)}</span>
+      <strong>${entry.score}</strong>
+    `;
+    leaderboardList.appendChild(listItem);
+  });
+}
+
+function clearLeaderboard() {
+  const shouldClear = confirm('Clear all locally saved leaderboard scores?');
+
+  if (shouldClear) {
+    localStorage.removeItem(leaderboardKey);
+    renderLeaderboard();
+  }
 }
 
 function formatTime(totalSeconds) {
@@ -173,5 +324,25 @@ function shuffleArray(array) {
   return shuffled;
 }
 
+function escapeHtml(value) {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+difficultySelect.addEventListener('change', (event) => {
+  currentDifficulty = event.target.value;
+  initGame();
+});
+
 restartButton.addEventListener('click', initGame);
+newGameButton.addEventListener('click', initGame);
+playAgainButton.addEventListener('click', initGame);
+closeModalButton.addEventListener('click', closeWinModal);
+clearLeaderboardButton.addEventListener('click', clearLeaderboard);
+
+renderLeaderboard();
 initGame();
