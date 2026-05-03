@@ -1,6 +1,6 @@
 # Memory Match Game
 
-A browser-based card matching game built with HTML, CSS, and JavaScript. Flip cards, find matching pairs, choose a difficulty, and try to earn the highest score on the local leaderboard!
+A browser-based card matching game built with HTML, CSS, and JavaScript. Flip cards, find matching pairs, choose a difficulty, use different card themes, and try to earn the highest score on the local leaderboard!
 
 ---
 
@@ -8,11 +8,16 @@ A browser-based card matching game built with HTML, CSS, and JavaScript. Flip ca
 Recent additions are in **bold**
 - Interactive card flipping and matching logic
 - Tracks matched pairs and game progress
-- **Difficulty system with Easy, Medium, and Hard board sizes**
-- **Move counter, timer, and live score preview**
-- **Scoring formula based on difficulty, moves, and completion time**
-- **Local leaderboard saved in the browser with localStorage**
-- **Win modal showing final time, moves, difficulty, and score**
+- Difficulty system with Easy, Medium, and Hard board sizes
+- Move counter, timer, and live score preview
+- Scoring formula based on difficulty, moves, completion time, and peek penalties
+- Local leaderboard saved in the browser with localStorage
+- Win modal showing final time, moves, difficulty, and score
+- **Card themes including Mixed, Animals, Space, and Sports**
+- **Best score display for the selected difficulty**
+- **Leaderboard filtering by difficulty**
+- **Peek Cards feature that briefly reveals unmatched cards with a score penalty**
+- **Saved player name, theme, and difficulty preferences**
 - Restart and new game controls
 - Responsive layout for desktop and mobile
 - Clean visual styling with card flip animations
@@ -62,11 +67,11 @@ memory-match-game/
 ---
 
 ## Future Improvements
-- Add custom card themes
 - Add sound effects for flips, matches, and wins
-- Add best score tracking by difficulty
 - Add keyboard navigation improvements
-- Add animations for completed matches
+- Add a daily challenge mode
+- Add combo bonuses for consecutive matches
+- Add a theme preview panel
 - Convert to React for stronger component-based state management
 
 ---
