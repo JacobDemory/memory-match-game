@@ -259,9 +259,9 @@ function updateStats() {
 
 function calculateScore() {
   const difficulty = difficultySettings[currentDifficulty];
-  const baseScore = difficulty.pairs * 100 * difficulty.multiplier;
-  const movePenalty = moves * 8;
-  const timePenalty = secondsElapsed * 2;
+  const baseScore = difficulty.pairs * 250 * difficulty.multiplier;
+  const movePenalty = moves * 10;
+  const timePenalty = secondsElapsed * 3;
   return Math.max(0, baseScore - movePenalty - timePenalty - peekPenalty);
 }
 

@@ -25,6 +25,10 @@ select {
   font: inherit;
 }
 
+button {
+  appearance: none;
+}
+
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
@@ -343,6 +347,7 @@ h1 {
 
 .modal-overlay {
   position: fixed;
+  z-index: 1000;
   inset: 0;
   display: flex;
   align-items: center;
